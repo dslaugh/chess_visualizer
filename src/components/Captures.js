@@ -7,12 +7,12 @@ export default class Captures extends React.Component {
 		return (
 			<div className="captures">
 				<div>
-					<div>White Captures</div>
+					{/*<div>White Captures</div>*/}
 					<div>{ whiteCaptures }</div>
 				</div>
 
 				<div>
-					<div>Black Captures</div>
+					{/*<div>Black Captures</div>*/}
 					<div>{ blackCaptures }</div>
 				</div>
 			</div>

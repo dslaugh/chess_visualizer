@@ -24,8 +24,8 @@ export default class Square extends React.Component {
 
 		return (
 			<div className={classes} onClick={ () => this.props.onClick() } data-idx={ this.props.idx }>
-				{ this.props.squareName } -
-				{ this.props.idx }
+				{/*{ this.props.squareName } -*/}
+				{/*{ this.props.idx }*/}
 				{/*{ JSON.stringify(this.props.coords) } -*/}
 				{/*{ this.props.isAttackedByBlack ? 'B' : '' } -*/}
 				{/*{ this.props.isAttackedByWhite ? 'W' : '' } -*/}
