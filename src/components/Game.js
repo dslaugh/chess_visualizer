@@ -27,24 +27,26 @@ export default class Game extends React.Component {
 		};
 	}
 
-	selectSquare(idx, clickedSquare) {
+	selectSquare(idx) {
 		// If pawn promotion popup is showing don't allow selecting
 		if (this.state.showPromotionPopup) {
 			return false;
 		}
+
+		const selectedSquare = this.state.squares[idx];
 		// If clicked square is not a piece return false (Do nothing)
-		if ((clickedSquare.occupant === null) || (clickedSquare.occupant.player !== this.state.playerTurn)) {
+		if ((selectedSquare.occupant === null) || (selectedSquare.occupant.player !== this.state.playerTurn)) {
 			return false;
 		}
 
-		const legalMoves = clickedSquare.occupant.calculateLegalMoves(this.state.squares, clickedSquare, this.state);
+		const legalMoves = selectedSquare.occupant.calculateLegalMoves(this.state.squares, selectedSquare, this.state);
 
 		this.setState({
 			legalMoves,
 			selectedSquareIdx: idx,
 			squares: this.state.squares.map((square, i) => {
 				if (idx === i) {
-					return Object.assign({}, square, { selected: true });
+					return { ...square,	selected: true };
 				}
 				return square;
 			})
@@ -55,10 +57,7 @@ export default class Game extends React.Component {
 		this.setState({
 			selectedSquareIdx: null,
 			squares: this.state.squares.map((square) => {
-				return {
-					...square,
-					selected: false,
-				};
+				return { ...square,	selected: false };
 			})
 		});
 	}
@@ -66,6 +65,7 @@ export default class Game extends React.Component {
 	movePiece(selectedSquare, clickedSquare, playedMove=false) {
 		let whiteCaptures = this.state.whiteCaptures.slice(0);
 		let blackCaptures = this.state.blackCaptures.slice(0);
+		
 		if (clickedSquare.occupant) {
 			if (clickedSquare.occupant.player === 'white') {
 				whiteCaptures.push(clickedSquare.occupant.markup);
@@ -156,19 +156,19 @@ export default class Game extends React.Component {
 		const clickedSquare = this.state.squares[idx];
 		// If a square has not already been selected
 		if (this.state.selectedSquareIdx === null) {
-			return this.selectSquare(idx, clickedSquare);
+			return this.selectSquare(idx);
 		}
 
 		if (this.state.selectedSquareIdx === idx) {
 			return this.deselectAll();
 		}
 
-		const selectedSquare = this.state.squares[this.state.selectedSquareIdx];
 		const playedMove = this.state.legalMoves.filter((move) => {
 			return (clickedSquare.coords.x === move.x) && (clickedSquare.coords.y === move.y);
 		});
 
 		if (playedMove.length > 0) {
+			const selectedSquare = this.state.squares[this.state.selectedSquareIdx];
 			this.movePiece(selectedSquare, clickedSquare, playedMove[0]);
 		}
 	}
