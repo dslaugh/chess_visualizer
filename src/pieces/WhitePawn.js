@@ -94,10 +94,6 @@ export default function () {
 			});
 
 		let legalMoves = possibleMoves.concat(possibleCaptures, possibleEnPassantCaptures);
-		if (state.whiteKingIsInCheck) {
-			// filter out moves that leave the king in check
-		}
-
 		return legalMoves;
 	}
 
