@@ -48,65 +48,52 @@ export function kingIsInCheck(squares, player) {
 	});
 }
 
-// export function updateSquares(squares, selectedSquare, clickedSquare, playedMove) {
-// 	let enPassantCaptureCoords;
-// 	if (playedMove && playedMove.isEnPassant) {
-// 		enPassantCaptureCoords = {
-// 			x: clickedSquare.coords.x,
-// 			y: selectedSquare.occupant.player === 'white' ? clickedSquare.coords.y + 1 : clickedSquare.coords.y - 1,
-// 		};
-// 		const enPassantIdx = coordsToIdx(enPassantCaptureCoords.x, enPassantCaptureCoords.y);
-// 		const enPassantCapturedSquare = this.state.squares[enPassantIdx];
-// 		whiteCaptures.push(enPassantCapturedSquare.occupant.piece);
-// 	}
-//
-// 	if (selectedSquare.occupant.onPieceMove) {
-// 		selectedSquare.occupant = selectedSquare.occupant.onPieceMove({
-// 			squareMovedFrom: selectedSquare,
-// 			squareMovedTo: clickedSquare
-// 		});
-// 	}
-//
-// 	let castledRook;
-// 	if (playedMove && playedMove.castle) {
-// 		castledRook = {
-// 			...this.state.squares[playedMove.rookIdx].occupant,
-// 			hasMoved: true,
-// 		};
-// 	}
-//
-// 	let squaresClone = [...this.state.squares];
-// 	squaresClone = squaresClone
-// 		.map((square) => { // Reset 'enPassantable'
-// 			if (square.occupant && (square.occupant.piece === 'P') && (square.occupant.player !== this.state.player)) {
-// 				return {
-// 					...square,
-// 					occupant: {
-// 						...square.occupant,
-// 						enPassantable: false,
-// 					}
-// 				}
-// 			}
-// 			return square;
-// 		})
-// 		.map((square, idx) => { // move pieces
-// 			if (playedMove.castle && idx === playedMove.rookIdx) {
-// 				return Object.assign({}, square, {occupant: null, selected: null});
-// 			} else if (playedMove.castle && idx === playedMove.rookToIdx) {
-// 				return Object.assign({}, square, {occupant: castledRook, selected: null});
-// 			} else if (square.squareName === clickedSquare.squareName) {
-// 				if (selectedSquare.occupant.piece === 'P' && (clickedSquare.coords.y === 0 || clickedSquare.coords.y === 7)) {
-// 					const promotionSquareBoundingRect = document.querySelector(`[data-idx='${idx}']`).getBoundingClientRect()
-// 					this.togglePromotionPopup(selectedSquare.occupant.player, coordsToIdx(clickedSquare.coords.x, clickedSquare.coords.y), promotionSquareBoundingRect);
-// 				}
-// 				return Object.assign({}, square, { occupant: selectedSquare.occupant });
-// 			} else if (square.squareName === selectedSquare.squareName) {
-// 				return Object.assign({}, square, { occupant: null, selected: null });
-// 			} else if (enPassantCaptureCoords && (square.coords.x === enPassantCaptureCoords.x && square.coords.y === enPassantCaptureCoords.y)) {
-// 				return Object.assign({}, square, { occupant: null });
-// 			} else {
-// 				return square;
-// 			}
-// 		});
-//
-// }
+export function updateBoard(squares, selectedSquare, playedMove, playerTurn) {
+	const playedMoveIdx = coordsToIdx(playedMove.x, playedMove.y);
+	const moveToSquare = squares[playedMoveIdx];
+	let capturedPiece;
+	let pawnPromotionSquare;
+
+	const updatedSquares = squares
+		.map((square) => { // reset enPassantable
+			if (square.occupant && (square.occupant.piece === 'P') && (square.occupant.player !== playerTurn)) {
+				return {
+					...square,
+					occupant: {
+						...square.occupant,
+						enPassantable: false,
+					}
+				};
+			}
+			return square;
+		})
+		.map((square, idx) => { // move pieces
+			if (playedMove.castle && (idx === playedMove.rookIdx)) { // castled rook previous square
+				return { ...square,	occupant: null,	selected: null };
+			} else if (playedMove.castle && idx === playedMove.rookToIdx) { // castled rook new square
+				const castledRook = {...squares[playedMove.rookIdx].occupant, hasMoved: true};
+				return {...square, occupant: castledRook, selected: null};
+			} else if (playedMove.enPassant && playedMove.captureIdx === idx) { // en passant captured piece
+				capturedPiece = square.occupant;
+				return { ...square, occupant: null };
+			} else if (square.idx === moveToSquare.idx) { // the 'moved to' square
+				if (moveToSquare.occupant) {
+					capturedPiece = moveToSquare.occupant;
+				}
+				if (selectedSquare.occupant.piece === 'P' && (moveToSquare.coords.y === 0 || moveToSquare.coords.y === 7)) {
+					pawnPromotionSquare = moveToSquare;
+				}
+				return { ...square, occupant: selectedSquare.occupant };
+			} else if (square.idx === selectedSquare.idx) { // the 'moved from' square
+				return {...square, occupant: null, selected: null};
+			} else { // unchanged square
+				return square;
+			}
+		});
+
+	return {
+		squares: updatedSquares,
+		capturedPiece,
+		pawnPromotionSquare,
+	};
+}
