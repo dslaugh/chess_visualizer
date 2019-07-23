@@ -1,4 +1,4 @@
-import { coordsToIdx, isInBounds } from '../helpers';
+import {coordsToIdx, isInBounds, kingIsInCheck, updateBoard} from '../helpers';
 import { blackPawn } from '../pieces_markup';
 
 export default function () {
@@ -89,11 +89,20 @@ export default function () {
 				return {
 					x: move.x,
 					y: move.y + 1,
-					isEnPassant: true,
+					idx: coordsToIdx(move.x, move.y + 1),
+					captureIdx: coordsToIdx(move.x, move.y),
+					enPassant: true,
 				};
 			});
 
-		return possibleMoves.concat(possibleCaptures, possibleEnPassantCaptures);
+		const allPossibleMoves = possibleMoves.concat(possibleCaptures, possibleEnPassantCaptures);
+
+		return allPossibleMoves.filter((move) => {
+			const updatedBoard = updateBoard(squares, selectedSquare, move, 'black');
+			return !kingIsInCheck(updatedBoard.squares, 'black');
+
+		});
+
 	}
 
 	function calculateAttackedSquares(squares, thisSquare) {

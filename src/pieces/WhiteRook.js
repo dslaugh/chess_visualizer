@@ -1,4 +1,4 @@
-import { coordsToIdx, isInBounds } from '../helpers';
+import {coordsToIdx, isInBounds, kingIsInCheck, updateBoard} from '../helpers';
 import { whiteRook } from '../pieces_markup';
 
 export default function () {
@@ -9,22 +9,21 @@ export default function () {
 		{ x: 0, y: -1 },
 	];
 
-	function calculateLegalMoves(squares, clickedSquare) {
-		return moveDirections.reduce((acc, dir) => {
-			let currentCoords = {
-				x: clickedSquare.coords.x + dir.x,
-				y: clickedSquare.coords.y + dir.y,
-			};
-			let currentIdx = coordsToIdx(currentCoords.x, currentCoords.y);
+	function calculateLegalMoves(squares, selectedSquare) {
+		const legalMoves = moveDirections.reduce((acc, dir) => {
+			let x = selectedSquare.coords.x + dir.x;
+			let y = selectedSquare.coords.y + dir.y;
+			let idx = coordsToIdx(x, y);
+			let currentCoords = {	x, y, idx };
 
 			let isEndOfLine = false;
 
 			while (isEndOfLine === false) {
 				if (isInBounds(currentCoords)) {
-					if (squares[currentIdx].occupant && squares[currentIdx].occupant.player === 'black') {
+					if (squares[idx].occupant && squares[idx].occupant.player === 'black') {
 						acc.push(currentCoords);
 						isEndOfLine = true;
-					} else if (squares[currentIdx].occupant && squares[currentIdx].occupant.player === 'white') {
+					} else if (squares[idx].occupant && squares[idx].occupant.player === 'white') {
 						isEndOfLine = true;
 					} else {
 						acc.push(currentCoords);
@@ -33,15 +32,19 @@ export default function () {
 					isEndOfLine = true;
 				}
 
-				currentCoords = {
-					x: currentCoords.x + dir.x,
-					y: currentCoords.y + dir.y,
-				};
-				currentIdx = coordsToIdx(currentCoords.x, currentCoords.y);
+				x = currentCoords.x + dir.x;
+				y = currentCoords.y + dir.y;
+				idx = coordsToIdx(x, y);
+				currentCoords = {	x, y, idx };
 			}
 
 			return acc;
 		}, []);
+
+		return legalMoves.filter((move) => {
+			const updatedBoard = updateBoard(squares, selectedSquare, move, 'white');
+			return !kingIsInCheck(updatedBoard.squares, 'white');
+		})
 	}
 
 	function getAttackedAndDefendedSquares(squares, currentSquare) {
