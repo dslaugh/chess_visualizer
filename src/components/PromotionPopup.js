@@ -12,8 +12,6 @@ export default class PromotionPopup extends React.Component {
 			promotionPieces = <BlackPromotionPieces onClick={(piece) => this.props.onClick(piece) } />
 		}
 
-		console.log('PromotionPopup loc', this.props.loc);
-
 		return (
 			<div className="promotion-popup" style={{left: this.props.loc.x, top: this.props.loc.y}}>
 				{ promotionPieces }

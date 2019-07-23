@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Board from './Board';
 import PlayerTurn from './PlayerTurn';
 import Captures from './Captures';
@@ -9,6 +10,7 @@ import {
 	getAttackedSquares,
 	setAttackedSquares,
 	kingIsInCheck,
+	updateBoard,
 } from '../helpers';
 
 export default class Game extends React.Component {
@@ -39,7 +41,7 @@ export default class Game extends React.Component {
 			return false;
 		}
 
-		const legalMoves = selectedSquare.occupant.calculateLegalMoves(this.state.squares, selectedSquare, this.state);
+		const legalMoves = selectedSquare.occupant.calculateLegalMoves(this.state.squares, selectedSquare);
 
 		this.setState({
 			legalMoves,
@@ -62,80 +64,36 @@ export default class Game extends React.Component {
 		});
 	}
 
-	movePiece(selectedSquare, clickedSquare, playedMove=false) {
-		let whiteCaptures = this.state.whiteCaptures.slice(0);
-		let blackCaptures = this.state.blackCaptures.slice(0);
-		
-		if (clickedSquare.occupant) {
-			if (clickedSquare.occupant.player === 'white') {
-				whiteCaptures.push(clickedSquare.occupant.markup);
-			} else {
-				blackCaptures.push(clickedSquare.occupant.markup);
-			}
-		}
-
-		let enPassantCaptureCoords;
-		if (playedMove && playedMove.isEnPassant) {
-			enPassantCaptureCoords = {
-				x: clickedSquare.coords.x,
-				y: selectedSquare.occupant.player === 'white' ? clickedSquare.coords.y + 1 : clickedSquare.coords.y - 1,
-			};
-			const enPassantIdx = coordsToIdx(enPassantCaptureCoords.x, enPassantCaptureCoords.y);
-			const enPassantCapturedSquare = this.state.squares[enPassantIdx];
-			whiteCaptures.push(enPassantCapturedSquare.occupant.piece);
-		}
+	movePiece(playedMove) {
+		const selectedSquare = this.state.squares[this.state.selectedSquareIdx];
+		const playedMoveIdx = coordsToIdx(playedMove.x, playedMove.y);
+		const moveToSquare = this.state.squares[playedMoveIdx];
+		const whiteCaptures = this.state.whiteCaptures.slice(0);
+		const blackCaptures = this.state.blackCaptures.slice(0);
 
 		if (selectedSquare.occupant.onPieceMove) {
 			selectedSquare.occupant = selectedSquare.occupant.onPieceMove({
 				squareMovedFrom: selectedSquare,
-				squareMovedTo: clickedSquare
+				squareMovedTo: moveToSquare
 			});
 		}
 
-		let castledRook;
-		if (playedMove && playedMove.castle) {
-			castledRook = {
-				...this.state.squares[playedMove.rookIdx].occupant,
-				hasMoved: true,
-			};
+		const updatedBoard = updateBoard(this.state.squares, selectedSquare, playedMove, this.state.playerTurn);
+
+		if (updatedBoard.capturedPiece) {
+			if (updatedBoard.capturedPiece.player === 'white') {
+				whiteCaptures.push(updatedBoard.capturedPiece.markup);
+			} else {
+				blackCaptures.push(updatedBoard.capturedPiece.markup);
+			}
 		}
 
-		let squaresClone = [...this.state.squares];
-		squaresClone = squaresClone
-			.map((square) => { // Reset 'enPassantable'
-				if (square.occupant && (square.occupant.piece === 'P') && (square.occupant.player !== this.state.player)) {
-					return {
-						...square,
-						occupant: {
-							...square.occupant,
-							enPassantable: false,
-						}
-					}
-				}
-				return square;
-			})
-			.map((square, idx) => { // move pieces
-				if (playedMove.castle && idx === playedMove.rookIdx) {
-					return Object.assign({}, square, {occupant: null, selected: null});
-				} else if (playedMove.castle && idx === playedMove.rookToIdx) {
-					return Object.assign({}, square, {occupant: castledRook, selected: null});
-				} else if (square.squareName === clickedSquare.squareName) {
-					if (selectedSquare.occupant.piece === 'P' && (clickedSquare.coords.y === 0 || clickedSquare.coords.y === 7)) {
-						const promotionSquareBoundingRect = document.querySelector(`[data-idx='${idx}']`).getBoundingClientRect();
-						this.togglePromotionPopup(selectedSquare.occupant.player, coordsToIdx(clickedSquare.coords.x, clickedSquare.coords.y), promotionSquareBoundingRect);
-					}
-					return Object.assign({}, square, { occupant: selectedSquare.occupant });
-				} else if (square.squareName === selectedSquare.squareName) {
-					return Object.assign({}, square, { occupant: null, selected: null });
-				} else if (enPassantCaptureCoords && (square.coords.x === enPassantCaptureCoords.x && square.coords.y === enPassantCaptureCoords.y)) {
-					return Object.assign({}, square, { occupant: null });
-				} else {
-					return square;
-				}
-			});
+		if (updatedBoard.pawnPromotionSquare) {
+			this.togglePromotionPopup(this.state.playerTurn, updatedBoard.pawnPromotionSquare.idx)
+		}
 
-		const attackedSquares = getAttackedSquares(squaresClone);
-		const squaresWithAttacks = setAttackedSquares(squaresClone, attackedSquares);
+		const attackedSquares = getAttackedSquares(updatedBoard.squares);
+		const squaresWithAttacks = setAttackedSquares(updatedBoard.squares, attackedSquares);
 
 		const whiteKingIsInCheck = kingIsInCheck(squaresWithAttacks, 'white');
 		const blackKingIsInCheck = kingIsInCheck(squaresWithAttacks, 'black');
@@ -153,7 +111,6 @@ export default class Game extends React.Component {
 	}
 
 	handleClick(idx) {
-		const clickedSquare = this.state.squares[idx];
 		// If a square has not already been selected
 		if (this.state.selectedSquareIdx === null) {
 			return this.selectSquare(idx);
@@ -163,13 +120,13 @@ export default class Game extends React.Component {
 			return this.deselectAll();
 		}
 
-		const playedMove = this.state.legalMoves.filter((move) => {
+		const clickedSquare = this.state.squares[idx];
+		const playedMove = this.state.legalMoves.find((move) => {
 			return (clickedSquare.coords.x === move.x) && (clickedSquare.coords.y === move.y);
 		});
 
-		if (playedMove.length > 0) {
-			const selectedSquare = this.state.squares[this.state.selectedSquareIdx];
-			this.movePiece(selectedSquare, clickedSquare, playedMove[0]);
+		if (playedMove) {
+			this.movePiece(playedMove);
 		}
 	}
 
@@ -182,7 +139,10 @@ export default class Game extends React.Component {
 		this.togglePromotionPopup();
 	}
 
-	togglePromotionPopup(playerTurn=null, squareIdx=null, boundingRect=null) {
+	togglePromotionPopup(playerTurn=null, squareIdx=null) {
+		const selector = `[data-idx='${squareIdx}']`;
+		const promotionElement = ReactDOM.findDOMNode(this).querySelector(selector);
+		const boundingRect = squareIdx !== null ? promotionElement.getBoundingClientRect() : undefined;
 		this.setState({
 			showPromotionPopup: !this.state.showPromotionPopup,
 			promotedPlayerTurn: playerTurn,
