@@ -1,4 +1,4 @@
-import { coordsToIdx, isInBounds } from '../helpers';
+import {coordsToIdx, isInBounds, kingIsInCheck, updateBoard} from '../helpers';
 import { blackQueen } from '../pieces_markup';
 
 export default function () {
@@ -13,13 +13,16 @@ export default function () {
 		{ x: 1, y: 1 },
 	];
 
-	function calculateLegalMoves(squares, clickedSquare) {
-		return moveDirections.reduce((acc, dir) => {
+	function calculateLegalMoves(squares, selectedSquare) {
+		const legalMoves = moveDirections.reduce((acc, dir) => {
+			let x = selectedSquare.coords.x + dir.x;
+			let y = selectedSquare.coords.y + dir.y
+			let currentIdx = coordsToIdx(x, y);
 			let currentCoords = {
-				x: clickedSquare.coords.x + dir.x,
-				y: clickedSquare.coords.y + dir.y,
+				x,
+				y,
+				idx: currentIdx,
 			};
-			let currentIdx = coordsToIdx(currentCoords.x, currentCoords.y);
 
 			let isEndOfLine = false;
 
@@ -37,15 +40,23 @@ export default function () {
 					isEndOfLine = true;
 				}
 
+				x = currentCoords.x + dir.x;
+				y = currentCoords.y + dir.y;
+				currentIdx = coordsToIdx(x, y);
 				currentCoords = {
-					x: currentCoords.x + dir.x,
-					y: currentCoords.y + dir.y,
+					x,
+					y,
+					idx: currentIdx,
 				};
-				currentIdx = coordsToIdx(currentCoords.x, currentCoords.y);
 			}
 
 			return acc;
 		}, []);
+
+		return legalMoves.filter((move) => {
+			const updatedBoard = updateBoard(squares, selectedSquare, move, 'black');
+			return !kingIsInCheck(updatedBoard.squares, 'black');
+		});
 	}
 
 	function getAttackedAndDefendedSquares(squares, currentSquare) {

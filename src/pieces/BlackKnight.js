@@ -1,4 +1,4 @@
-import {coordsToIdx, isInBounds} from '../helpers';
+import {coordsToIdx, isInBounds, kingIsInCheck, updateBoard} from '../helpers';
 import { blackKnight } from '../pieces_markup';
 
 export default function () {
@@ -13,13 +13,13 @@ export default function () {
 		{ x: -1, y: -2 },
 	];
 
-	function calculateLegalMoves(squares, clickedSquare) {
+	function calculateLegalMoves(squares, selectedSquare) {
 		return moves
 			.map((move) => {
-				return {
-					x: clickedSquare.coords.x + move.x,
-					y: clickedSquare.coords.y + move.y,
-				}
+				const x = selectedSquare.coords.x + move.x;
+				const y = selectedSquare.coords.y + move.y;
+				const idx = coordsToIdx(x, y);
+				return { x,	y, idx };
 			})
 			.filter((move) => {
 				if (move.x < 0 || move.x > 7) {
@@ -29,12 +29,15 @@ export default function () {
 					return false;
 				}
 
-				let idx = coordsToIdx(move.x, move.y);
-				if (squares[idx].occupant && squares[idx].occupant.player !== 'white') {
+				if (squares[move.idx].occupant && squares[move.idx].occupant.player !== 'white') {
 					return false;
 				}
 
 				return true;
+			})
+			.filter((move) => {
+				const updatedBoard = updateBoard(squares, selectedSquare, move, 'black');
+				return !kingIsInCheck(updatedBoard.squares, 'black');
 			});
 	}
 
