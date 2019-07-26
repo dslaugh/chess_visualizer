@@ -40,9 +40,12 @@ export default function () {
 			});
 
 		// Castling moves
+		const ooSquares = [squares[61], squares[62]];
 		if (selectedSquare.occupant.hasMoved === false) {
-			const ooSquaresEmpty = [squares[61], squares[62]].every(square => !square.occupant);
-			if (ooSquaresEmpty && squares[63].occupant && squares[63].occupant.hasMoved === false) {
+			const ooSquaresNotAttacked = ooSquares.every(square => !squareIsAttacked(square.coords, squaresAttackedByBlack));
+			const ooSquaresEmpty = ooSquares.every(square => !square.occupant);
+
+			if (ooSquaresNotAttacked && ooSquaresEmpty && squares[63].occupant && squares[63].occupant.hasMoved === false) {
 				legalMoves.push({
 					x: selectedSquare.coords.x + 2,
 					y: selectedSquare.coords.y,
@@ -52,8 +55,10 @@ export default function () {
 				});
 			}
 
-			const oooSquaresEmpty = [squares[57], squares[58], squares[59]].every(square => !square.occupant);
-			if (oooSquaresEmpty && squares[56].occupant && squares[56].occupant.hasMoved === false ) {
+			const oooSquares = [squares[57], squares[58], squares[59]];
+			const oooSquaresNotAttacked = oooSquares.every(square => !squareIsAttacked(square.coords, squaresAttackedByBlack));
+			const oooSquaresEmpty = oooSquares.every(square => !square.occupant);
+			if (oooSquaresNotAttacked && oooSquaresEmpty && squares[56].occupant && squares[56].occupant.hasMoved === false ) {
 				legalMoves.push({
 					x: selectedSquare.coords.x - 2,
 					y: selectedSquare.coords.y,
@@ -69,6 +74,7 @@ export default function () {
 	}
 
 	function squareIsAttacked(move, attackedSquares) {
+		// console.log('@WhiteKing', '#squareIsAttacked', 'move:', move);
 		return attackedSquares.some(square => move.x === square.x && move.y === square.y);
 	}
 
