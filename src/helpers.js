@@ -20,7 +20,7 @@ export function getAttackedSquares(squares) {
 
 export function setAttackedSquares(squares, attackedSquares) {
 	// reset all squares back to false
-	let updatedSquares = [ ...squares ]
+	let updatedSquares = squares
 		.map((square) => {
 			return {
 				...square,

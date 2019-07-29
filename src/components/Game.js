@@ -4,6 +4,7 @@ import Board from './Board';
 import PlayerTurn from './PlayerTurn';
 import Captures from './Captures';
 import PromotionPopup from './PromotionPopup';
+import History from './History';
 import initialBoardState from '../initialBoardState';
 import {
 	coordsToIdx,
@@ -16,60 +17,89 @@ import {
 export default class Game extends React.Component {
 	constructor(props) {
 		super(props);
-		const attackedSquares = getAttackedSquares(initialBoardState.squares);
-		const squaresWithAttacks = setAttackedSquares(initialBoardState.squares, attackedSquares);
+		const attackedSquares = getAttackedSquares(initialBoardState.history[0].squares);
+		const squaresWithAttacks = setAttackedSquares(initialBoardState.history[0].squares, attackedSquares);
 		const newBoardState = {
 			...initialBoardState,
-			squares: squaresWithAttacks,
+			moveNum: 0,
+			history: [
+				{
+					...initialBoardState.history[0],
+					squares: squaresWithAttacks,
+					attackedSquares,
+				}
+			],
 		};
 
-		this.state = {
-			...newBoardState,
-			attackedSquares,
-		};
+		this.state = newBoardState;
 	}
 
 	selectSquare(idx) {
+		const history = this.state.history;
+		const current = history[this.state.moveNum];
 		// If pawn promotion popup is showing don't allow selecting
 		if (this.state.showPromotionPopup) {
 			return false;
 		}
 
-		const selectedSquare = this.state.squares[idx];
+		const selectedSquare = current.squares[idx];
 		// If clicked square is not a piece return false (Do nothing)
-		if ((selectedSquare.occupant === null) || (selectedSquare.occupant.player !== this.state.playerTurn)) {
+		if ((selectedSquare.occupant === null) || (selectedSquare.occupant.player !== current.playerTurn)) {
 			return false;
 		}
 
-		const legalMoves = selectedSquare.occupant.calculateLegalMoves(this.state.squares, selectedSquare);
+		const legalMoves = selectedSquare.occupant.calculateLegalMoves(current.squares, selectedSquare);
+
+		const updatedSquares = current.squares.map((square, i) => {
+			if (idx === i) {
+				return { ...square, selected: true };
+			}
+			return square;
+		});
+
+		const updatedHistory = history.map((hist, i) => {
+			if (i === this.state.moveNum) {
+				return { ...hist, squares: updatedSquares };
+			}
+			return hist;
+		});
 
 		this.setState({
 			legalMoves,
 			selectedSquareIdx: idx,
-			squares: this.state.squares.map((square, i) => {
-				if (idx === i) {
-					return { ...square,	selected: true };
-				}
-				return square;
-			})
+			history: updatedHistory,
 		});
 	}
 
 	deselectAll() {
+		const history = this.state.history;
+		const current = history[this.state.moveNum];
+
+		const updatedSquares = current.squares.map(square => ({ ...square, selected: false }));
+
+		const updatedHistory = history.map((hist, i) => {
+			if (i === this.state.moveNum) {
+				return { ...hist, squares: updatedSquares };
+			}
+			return hist;
+		});
+
 		this.setState({
+			legalMoves: null,
 			selectedSquareIdx: null,
-			squares: this.state.squares.map((square) => {
-				return { ...square,	selected: false };
-			})
+			history: updatedHistory,
 		});
 	}
 
 	movePiece(playedMove) {
-		const selectedSquare = this.state.squares[this.state.selectedSquareIdx];
+		const history = this.state.history.slice(0, this.state.moveNum + 1);
+		const current = history[this.state.moveNum];
+
+		const selectedSquare = current.squares[this.state.selectedSquareIdx];
 		const playedMoveIdx = coordsToIdx(playedMove.x, playedMove.y);
-		const moveToSquare = this.state.squares[playedMoveIdx];
-		const whiteCaptures = this.state.whiteCaptures.slice(0);
-		const blackCaptures = this.state.blackCaptures.slice(0);
+		const moveToSquare = current.squares[playedMoveIdx];
+		const whiteCaptures = current.whiteCaptures.slice(0);
+		const blackCaptures = current.blackCaptures.slice(0);
 
 		if (selectedSquare.occupant.onPieceMove) {
 			selectedSquare.occupant = selectedSquare.occupant.onPieceMove({
@@ -78,7 +108,7 @@ export default class Game extends React.Component {
 			});
 		}
 
-		const updatedBoard = updateBoard(this.state.squares, selectedSquare, playedMove, this.state.playerTurn);
+		const updatedBoard = updateBoard(current.squares, selectedSquare, playedMove, current.playerTurn);
 
 		if (updatedBoard.capturedPiece) {
 			if (updatedBoard.capturedPiece.player === 'white') {
@@ -87,9 +117,8 @@ export default class Game extends React.Component {
 				blackCaptures.push(updatedBoard.capturedPiece.markup);
 			}
 		}
-
 		if (updatedBoard.pawnPromotionSquare) {
-			this.togglePromotionPopup(this.state.playerTurn, updatedBoard.pawnPromotionSquare.idx)
+			this.togglePromotionPopup(current.playerTurn, updatedBoard.pawnPromotionSquare.idx)
 		}
 
 		const attackedSquares = getAttackedSquares(updatedBoard.squares);
@@ -98,19 +127,30 @@ export default class Game extends React.Component {
 		const whiteKingIsInCheck = kingIsInCheck(squaresWithAttacks, 'white');
 		const blackKingIsInCheck = kingIsInCheck(squaresWithAttacks, 'black');
 
+		const updatedHistory = history
+			.map((hist) => { // first reset 'selected'
+				const updatedSquares = hist.squares.map(square => ({ ...square, selected: false }) );
+				return { ...hist, squares: updatedSquares };
+			})
+			.concat({ // add new history
+				whiteCaptures,
+				blackCaptures,
+				playerTurn: current.playerTurn === 'white' ? 'black' : 'white',
+				squares: squaresWithAttacks,
+				whiteKingIsInCheck,
+				blackKingIsInCheck,
+			});
+
 		this.setState({
-			whiteCaptures,
-			blackCaptures,
-			playerTurn: this.state.playerTurn === 'white' ? 'black' : 'white',
+			moveNum: this.state.moveNum + 1,
 			selectedSquareIdx: null,
 			legalMoves: null,
-			squares: squaresWithAttacks,
-			whiteKingIsInCheck,
-			blackKingIsInCheck,
+			history: updatedHistory,
 		});
 	}
 
 	handleClick(idx) {
+		const current = this.state.history[this.state.moveNum];
 		// If a square has not already been selected
 		if (this.state.selectedSquareIdx === null) {
 			return this.selectSquare(idx);
@@ -120,7 +160,7 @@ export default class Game extends React.Component {
 			return this.deselectAll();
 		}
 
-		const clickedSquare = this.state.squares[idx];
+		const clickedSquare = current.squares[idx];
 		const playedMove = this.state.legalMoves.find((move) => {
 			return (clickedSquare.coords.x === move.x) && (clickedSquare.coords.y === move.y);
 		});
@@ -131,11 +171,24 @@ export default class Game extends React.Component {
 	}
 
 	handlePromotionClick(piece) {
-		const squaresClone = [...this.state.squares];
-		squaresClone[this.state.promotedSquareIdx].occupant = piece;
-		this.setState({
-			squares: squaresClone,
+		const history = this.state.history;
+		const current = history[this.state.moveNum];
+
+		const updatedSquares = current.squares.map((square) => {
+			if (square.idx === this.state.promotedSquareIdx) {
+				return { ...square, occupant: piece };
+			}
+			return square;
 		});
+
+		const updatedHistory = history.map((hist, idx) => {
+			if (idx === this.state.moveNum) {
+				return { ...hist, squares: updatedSquares };
+			}
+			return hist;
+		});
+
+		this.setState({	history: updatedHistory	});
 		this.togglePromotionPopup();
 	}
 
@@ -151,24 +204,59 @@ export default class Game extends React.Component {
 		});
 	}
 
+	handleHistoryClick(direction) {
+		if (direction === 'back' && this.state.moveNum === 0) {
+			return false;
+		}
+		if (direction === 'forward' && (this.state.moveNum === this.state.history.length - 1)) {
+			return false;
+		}
+
+		let moveNum;
+		switch (direction) {
+			case 'start':
+				moveNum = 0;
+				break;
+			case 'end':
+				moveNum = this.state.history.length - 1;
+				break;
+			case 'forward':
+				moveNum = this.state.moveNum + 1;
+				break;
+			case 'back':
+				moveNum = this.state.moveNum - 1;
+				break;
+			default:
+				moveNum = this.state.moveNum - 1;
+		}
+
+		this.setState({	moveNum });
+	}
+
 	render() {
+		const history = this.state.history;
+		const current = history[this.state.moveNum];
+
 		return (
 			<div className="game">
 				{ this.state.showPromotionPopup &&
 					<PromotionPopup
 						onClick={ (piece) => this.handlePromotionClick(piece) }
 						promotedPlayerTurn={ this.state.promotedPlayerTurn }
-						loc={this.state.promotionPopupLoc}
+						loc={ this.state.promotionPopupLoc }
 					/>
 				}
-				<PlayerTurn playerTurn={ this.state.playerTurn } ></PlayerTurn>
+				<PlayerTurn playerTurn={ current.playerTurn } />
 				<div className="game-board">
 					<Board
-						squares={ this.state.squares }
+						squares={ current.squares }
 						onClick={ (idx) => this.handleClick(idx) }
 					/>
 				</div>
-				<Captures white={ this.state.whiteCaptures } black={ this.state.blackCaptures } />
+				<History
+					onClick={ (direction) => this.handleHistoryClick(direction) }
+				/>
+				<Captures white={ current.whiteCaptures } black={ current.blackCaptures } />
 			</div>
 		);
 	}
