@@ -1,4 +1,4 @@
-import {coordsToIdx, isInBounds, kingIsInCheck, updateBoard} from '../helpers';
+import {coordsToIdx, isInBounds, kingIsInCheck, squareIsEmpty, updateBoard} from '../helpers';
 import { blackPawn } from '../pieces_markup';
 
 export default function () {
@@ -19,8 +19,14 @@ export default function () {
 
 	// TODO: This could probably use some refactoring
 	function calculateLegalMoves(squares, selectedSquare) {
+		const oneSquareAheadCoords = {
+			x: selectedSquare.coords.x + moves[0].x,
+			y: selectedSquare.coords.y + moves[0].y,
+		};
+		const oneSquareAheadIdx = coordsToIdx(oneSquareAheadCoords);
+		const oneSquareAhead = squares[oneSquareAheadIdx];
 		let possibleMoves = [];
-		if (this.isFirstMove) {
+		if (this.isFirstMove && squareIsEmpty(oneSquareAhead)) {
 			possibleMoves = moves;
 		} else {
 			possibleMoves = [moves[0]];
@@ -38,7 +44,7 @@ export default function () {
 					return false;
 				}
 
-				let idx = coordsToIdx(move.x, move.y);
+				let idx = coordsToIdx(move);
 				let possibleSquare = squares[idx];
 				if (possibleSquare.occupant) {
 					return false;
@@ -58,7 +64,7 @@ export default function () {
 				if (!isInBounds(move)) {
 					return false;
 				}
-				let idx = coordsToIdx(move.x, move.y);
+				let idx = coordsToIdx(move);
 				let possibleCaptureSquare = squares[idx];
 				if (possibleCaptureSquare.occupant && possibleCaptureSquare.occupant.player === 'white') {
 					return true;
@@ -78,7 +84,7 @@ export default function () {
 				if (!isInBounds(move)) {
 					return false;
 				}
-				let idx = coordsToIdx(move.x, move.y);
+				let idx = coordsToIdx(move);
 				let possibleEnPassantSquare = squares[idx];
 				if (possibleEnPassantSquare.occupant && possibleEnPassantSquare.occupant.player === 'white' && possibleEnPassantSquare.occupant.enPassantable) {
 					return true;
@@ -86,11 +92,11 @@ export default function () {
 				return false;
 			})
 			.map((move) => {
+				const coords = { x: move.x, y: move.y + 1 };
 				return {
-					x: move.x,
-					y: move.y + 1,
-					idx: coordsToIdx(move.x, move.y + 1),
-					captureIdx: coordsToIdx(move.x, move.y),
+					...coords,
+					idx: coordsToIdx(coords),
+					captureIdx: coordsToIdx(move),
 					enPassant: true,
 				};
 			});
@@ -114,7 +120,7 @@ export default function () {
 				} ;
 				return {
 					...coords,
-					idx: coordsToIdx(coords.x, coords.y),
+					idx: coordsToIdx(coords),
 					player: 'black',
 				};
 			})
