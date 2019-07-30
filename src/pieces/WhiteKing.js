@@ -40,10 +40,9 @@ export default function () {
 			});
 
 		// Castling moves
-		const ooSquares = [squares[61], squares[62]];
 		if (selectedSquare.occupant.hasMoved === false) {
-			const ooSquaresNotAttacked = ooSquares.every(square => !squareIsAttacked(square.coords, squaresAttackedByBlack));
-			const ooSquaresEmpty = ooSquares.every(square => !square.occupant);
+			const ooSquaresNotAttacked = [squares[60], squares[61], squares[62]].every(square => !squareIsAttacked(square.coords, squaresAttackedByBlack));
+			const ooSquaresEmpty = [squares[61], squares[62]].every(square => !square.occupant);
 
 			if (ooSquaresNotAttacked && ooSquaresEmpty && squares[63].occupant && squares[63].occupant.hasMoved === false) {
 				legalMoves.push({
@@ -55,9 +54,8 @@ export default function () {
 				});
 			}
 
-			const oooSquares = [squares[57], squares[58], squares[59]];
-			const oooSquaresNotAttacked = oooSquares.every(square => !squareIsAttacked(square.coords, squaresAttackedByBlack));
-			const oooSquaresEmpty = oooSquares.every(square => !square.occupant);
+			const oooSquaresNotAttacked = [squares[57], squares[58], squares[59], squares[60]].every(square => !squareIsAttacked(square.coords, squaresAttackedByBlack));
+			const oooSquaresEmpty = [squares[57], squares[58], squares[59]].every(square => !square.occupant);
 			if (oooSquaresNotAttacked && oooSquaresEmpty && squares[56].occupant && squares[56].occupant.hasMoved === false ) {
 				legalMoves.push({
 					x: selectedSquare.coords.x - 2,
