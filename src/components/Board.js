@@ -5,18 +5,9 @@ export default class Board extends React.Component {
 
 	renderSquare(idx) {
 		const square = this.props.squares[idx];
-		// TODO: probably want to add a prop for the whole square rather than broken up like this
 		return <Square
 			square={ square }
-			idx={ idx }
-			coords={ square.coords }
-			squareName={ square.squareName }
-			squareColor={ square.squareColor }
-			occupant={ square.occupant }
 			onClick={ () => this.props.onClick(idx) }
-			selected={ square.selected }
-			isAttackedByBlack={ square.isAttackedByBlack }
-			isAttackedByWhite={ square.isAttackedByWhite }
 		/>
 	}
 
