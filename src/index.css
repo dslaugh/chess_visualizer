@@ -27,10 +27,12 @@
 .square-value {
 	font-size: 68px;
 	text-align: center;
+	position: relative;
+	z-index: 1;
 }
 
 .sel {
-	background-color: green;
+	background-color: rgba(0, 180, 0, 1);
 }
 
 .white-piece {
@@ -65,4 +67,18 @@
 
 .promotion-piece {
 	float: left;
+}
+
+.legal-move {
+	position: relative;
+}
+.legal-move:after {
+	content: '';
+	position: absolute;
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	background-color: rgba(0, 180, 0, 1);
+	top: 30px;
+	left: 24px;
 }

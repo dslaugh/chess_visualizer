@@ -13,7 +13,7 @@ export default function () {
 		const legalMoves = moveDirections.reduce((acc, dir) => {
 			let x = selectedSquare.coords.x + dir.x;
 			let y = selectedSquare.coords.y + dir.y;
-			let currentIdx = coordsToIdx(x, y);
+			let currentIdx = coordsToIdx({ x, y });
 			let currentCoords = {
 				x,
 				y,
@@ -38,7 +38,7 @@ export default function () {
 
 				x = currentCoords.x + dir.x;
 				y = currentCoords.y + dir.y;
-				currentIdx = coordsToIdx(x, y);
+				currentIdx = coordsToIdx({ x, y });
 				currentCoords = {
 					x,
 					y,
@@ -61,7 +61,7 @@ export default function () {
 				x: currentSquare.coords.x + dir.x,
 				y: currentSquare.coords.y + dir.y,
 			};
-			let currentIdx = coordsToIdx(currentCoords.x, currentCoords.y);
+			let currentIdx = coordsToIdx(currentCoords);
 
 			let isEndOfLine = false;
 
@@ -81,7 +81,7 @@ export default function () {
 					x: currentCoords.x + dir.x,
 					y: currentCoords.y + dir.y,
 				};
-				currentIdx = coordsToIdx(currentCoords.x, currentCoords.y);
+				currentIdx = coordsToIdx(currentCoords);
 			}
 
 			return acc;
@@ -93,7 +93,7 @@ export default function () {
 		return attackedAndDefendedSquares.map((move) => {
 			return {
 				...move,
-				idx: coordsToIdx(move.x, move.y),
+				idx: coordsToIdx(move),
 				player: 'black',
 			};
 		});

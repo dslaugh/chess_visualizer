@@ -1,5 +1,13 @@
-import { coordsToIdx, isInBounds, getAttackedSquares } from '../helpers';
 import { whiteKing } from '../pieces_markup';
+import {
+	coordsToIdx,
+	isInBounds,
+	getAttackedSquares,
+	updateBoard,
+	kingIsInCheck,
+	squareIsAttacked,
+	squareIsEmpty,
+} from '../helpers';
 
 export default function () {
 	const moves = [
@@ -27,7 +35,7 @@ export default function () {
 				};
 			})
 			.filter((move) => {
-				const moveIdx = coordsToIdx(move.x, move.y);
+				const moveIdx = coordsToIdx(move);
 				const currentMove = squares[moveIdx];
 
 				if (!isInBounds(move)) {
@@ -42,8 +50,7 @@ export default function () {
 		// Castling moves
 		if (selectedSquare.occupant.hasMoved === false) {
 			const ooSquaresNotAttacked = [squares[60], squares[61], squares[62]].every(square => !squareIsAttacked(square.coords, squaresAttackedByBlack));
-			const ooSquaresEmpty = [squares[61], squares[62]].every(square => !square.occupant);
-
+			const ooSquaresEmpty = [squares[61], squares[62]].every(squareIsEmpty);
 			if (ooSquaresNotAttacked && ooSquaresEmpty && squares[63].occupant && squares[63].occupant.hasMoved === false) {
 				legalMoves.push({
 					x: selectedSquare.coords.x + 2,
@@ -55,7 +62,7 @@ export default function () {
 			}
 
 			const oooSquaresNotAttacked = [squares[57], squares[58], squares[59], squares[60]].every(square => !squareIsAttacked(square.coords, squaresAttackedByBlack));
-			const oooSquaresEmpty = [squares[57], squares[58], squares[59]].every(square => !square.occupant);
+			const oooSquaresEmpty = [squares[57], squares[58], squares[59]].every(squareIsEmpty);
 			if (oooSquaresNotAttacked && oooSquaresEmpty && squares[56].occupant && squares[56].occupant.hasMoved === false ) {
 				legalMoves.push({
 					x: selectedSquare.coords.x - 2,
@@ -68,12 +75,10 @@ export default function () {
 		}
 
 		// Filter out any moves that put the king in check
-		return legalMoves.filter(move => !squareIsAttacked(move, squaresAttackedByBlack));
-	}
-
-	function squareIsAttacked(move, attackedSquares) {
-		// console.log('@WhiteKing', '#squareIsAttacked', 'move:', move);
-		return attackedSquares.some(square => move.x === square.x && move.y === square.y);
+		return legalMoves.filter((move) => {
+			const updatedBoard = updateBoard(squares, selectedSquare, move, 'white');
+			return !kingIsInCheck(updatedBoard.squares, 'white');
+		});
 	}
 
 	function getAttackedAndDefendedSquares(squares, currentSquare) {
@@ -97,7 +102,7 @@ export default function () {
 		return attackedAndDefendedSquares.map((move) => {
 			return {
 				...move,
-				idx: coordsToIdx(move.x, move.y),
+				idx: coordsToIdx(move),
 				player: 'white',
 			};
 		});

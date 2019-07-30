@@ -1,5 +1,5 @@
-export function coordsToIdx(x, y) {
-	return (y * 8) + x;
+export function coordsToIdx(coords) {
+	return (coords.y * 8) + coords.x;
 }
 
 export function isInBounds(coords) {
@@ -49,7 +49,7 @@ export function kingIsInCheck(squares, player) {
 }
 
 export function updateBoard(squares, selectedSquare, playedMove, playerTurn) {
-	const playedMoveIdx = coordsToIdx(playedMove.x, playedMove.y);
+	const playedMoveIdx = coordsToIdx(playedMove);
 	const moveToSquare = squares[playedMoveIdx];
 	let capturedPiece;
 	let pawnPromotionSquare;
@@ -96,4 +96,25 @@ export function updateBoard(squares, selectedSquare, playedMove, playerTurn) {
 		capturedPiece,
 		pawnPromotionSquare,
 	};
+}
+
+export function isSameCoords(coords1, coords2) {
+	return coords1.x === coords2.x && coords1.y === coords2.y;
+}
+
+export function resetLegalMoveIndicators(squares) {
+	return squares.map((square) => {
+		return {
+			...square,
+			isLegalMove: false,
+		};
+	});
+}
+
+export function squareIsAttacked(move, attackedSquares) {
+	return attackedSquares.some(square => move.x === square.x && move.y === square.y);
+}
+
+export function squareIsEmpty(square) {
+	return !square.occupant
 }

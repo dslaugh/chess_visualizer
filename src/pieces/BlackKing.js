@@ -1,5 +1,12 @@
-import {coordsToIdx, getAttackedSquares, isInBounds} from '../helpers';
 import { blackKing } from '../pieces_markup';
+import {
+	coordsToIdx,
+	isInBounds,
+	getAttackedSquares,
+	updateBoard,
+	kingIsInCheck,
+	squareIsAttacked, squareIsEmpty,
+} from '../helpers';
 
 export default function () {
 	const moves = [
@@ -27,7 +34,7 @@ export default function () {
 				};
 			})
 			.filter((move) => {
-				const moveIdx = coordsToIdx(move.x, move.y);
+				const moveIdx = coordsToIdx(move);
 				const currentMove = squares[moveIdx];
 
 				if (!isInBounds(move)) {
@@ -42,7 +49,7 @@ export default function () {
 		// Castling moves
 		if (selectedSquare.occupant.hasMoved === false) {
 			const ooSquaresNotAttacked = [squares[4], squares[5], squares[6]].every(square => !squareIsAttacked(square.coords, squaresAttackedByWhite));
-			const ooSquaresEmpty = [squares[5], squares[6]].every(square => !square.occupant);
+			const ooSquaresEmpty = [squares[5], squares[6]].every(squareIsEmpty);
 			if (ooSquaresNotAttacked && ooSquaresEmpty && squares[7].occupant && squares[7].occupant.hasMoved === false) {
 				legalMoves.push({
 					x: selectedSquare.coords.x + 2,
@@ -54,7 +61,7 @@ export default function () {
 			}
 
 			const oooSquaresNotAttacked = [squares[1], squares[2], squares[3], squares[4]].every(square => !squareIsAttacked(square.coords, squaresAttackedByWhite));
-			const oooSquaresEmpty = [squares[1], squares[2], squares[3]].every(square => !square.occupant);
+			const oooSquaresEmpty = [squares[1], squares[2], squares[3]].every(squareIsEmpty);
 			if (oooSquaresNotAttacked && oooSquaresEmpty && squares[0].occupant && squares[0].occupant.hasMoved === false ) {
 				legalMoves.push({
 					x: selectedSquare.coords.x - 2,
@@ -67,11 +74,10 @@ export default function () {
 		}
 
 		// Filter out any moves that put the king in check
-		return legalMoves.filter(move => !squareIsAttacked(move, squaresAttackedByWhite));
-	}
-
-	function squareIsAttacked(move, attackedSquares) {
-		return attackedSquares.some(square => move.x === square.x && move.y === square.y);
+		return legalMoves.filter((move) => {
+			const updatedBoard = updateBoard(squares, selectedSquare, move, 'black');
+			return !kingIsInCheck(updatedBoard.squares, 'black');
+		});
 	}
 
 	function getAttackedAndDefendedSquares(squares, currentSquare) {
@@ -102,7 +108,7 @@ export default function () {
 		return attackedAndDefendedSquares.map((move) => {
 			return {
 				...move,
-				idx: coordsToIdx(move.x, move.y),
+				idx: coordsToIdx(move),
 				player: 'black',
 			};
 		});

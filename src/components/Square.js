@@ -3,10 +3,15 @@ import React from 'react';
 export default class Square extends React.Component {
 	render() {
 		const square = this.props.square;
+
 		let classes = `board-square ${square.squareColor}`;
 		if (this.props.selected) {
 			classes += ' sel';
 		}
+		if (square.isLegalMove) {
+			classes += ' legal-move';
+		}
+
 		let squareValueClasses = 'square-value';
 		if (square.occupant && square.occupant.player === 'white') {
 			squareValueClasses += ' white-piece';

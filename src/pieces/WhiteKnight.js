@@ -18,7 +18,7 @@ export default function () {
 			.map((move) => {
 				const x = selectedSquare.coords.x + move.x;
 				const y = selectedSquare.coords.y + move.y;
-				const idx = coordsToIdx(x, y);
+				const idx = coordsToIdx({ x, y });
 				return { x,	y, idx };
 			})
 			.filter((move) => {
@@ -60,7 +60,7 @@ export default function () {
 		return attackedAndDefendedSquares.map((move) => {
 			return {
 				...move,
-				idx: coordsToIdx(move.x, move.y),
+				idx: coordsToIdx(move),
 				player: 'white',
 			};
 		});

@@ -12,6 +12,8 @@ import {
 	setAttackedSquares,
 	kingIsInCheck,
 	updateBoard,
+	isSameCoords,
+	resetLegalMoveIndicators,
 } from '../helpers';
 
 export default class Game extends React.Component {
@@ -50,12 +52,21 @@ export default class Game extends React.Component {
 
 		const legalMoves = selectedSquare.occupant.calculateLegalMoves(current.squares, selectedSquare);
 
-		const updatedSquares = current.squares.map((square, i) => {
-			if (idx === i) {
-				return { ...square, selected: true };
-			}
-			return square;
-		});
+		// set selected square
+		const updatedSquares = current.squares
+			.map((square) => {
+				if (idx === square.idx) {
+					return { ...square, selected: true };
+				}
+				return square;
+			})
+			.map((square) => { // set legal moves
+				const isLegalMove = legalMoves.some(move => isSameCoords(square.coords, move));
+				if (isLegalMove) {
+					return { ...square, isLegalMove };
+				}
+				return square;
+			});
 
 		const updatedHistory = history.map((hist, i) => {
 			if (i === this.state.moveNum) {
@@ -75,7 +86,7 @@ export default class Game extends React.Component {
 		const history = this.state.history;
 		const current = history[this.state.moveNum];
 
-		const updatedSquares = current.squares.map(square => ({ ...square, selected: false }));
+		const updatedSquares = current.squares.map(square => ({ ...square, selected: false, isLegalMove: false }));
 
 		const updatedHistory = history.map((hist, i) => {
 			if (i === this.state.moveNum) {
@@ -96,7 +107,7 @@ export default class Game extends React.Component {
 		const current = history[this.state.moveNum];
 
 		const selectedSquare = current.squares[this.state.selectedSquareIdx];
-		const playedMoveIdx = coordsToIdx(playedMove.x, playedMove.y);
+		const playedMoveIdx = coordsToIdx(playedMove);
 		const moveToSquare = current.squares[playedMoveIdx];
 		const whiteCaptures = current.whiteCaptures.slice(0);
 		const blackCaptures = current.blackCaptures.slice(0);
@@ -123,20 +134,21 @@ export default class Game extends React.Component {
 
 		const attackedSquares = getAttackedSquares(updatedBoard.squares);
 		const squaresWithAttacks = setAttackedSquares(updatedBoard.squares, attackedSquares);
+		const updatedSquares = resetLegalMoveIndicators(squaresWithAttacks);
 
 		const whiteKingIsInCheck = kingIsInCheck(squaresWithAttacks, 'white');
 		const blackKingIsInCheck = kingIsInCheck(squaresWithAttacks, 'black');
 
 		const updatedHistory = history
-			.map((hist) => { // first reset 'selected'
-				const updatedSquares = hist.squares.map(square => ({ ...square, selected: false }) );
+			.map((hist) => { // first reset 'selected' and 'isLegalMove'
+				const updatedSquares = hist.squares.map(square => ({ ...square, selected: false, isLegalMove: false }) );
 				return { ...hist, squares: updatedSquares };
 			})
 			.concat({ // add new history
 				whiteCaptures,
 				blackCaptures,
 				playerTurn: current.playerTurn === 'white' ? 'black' : 'white',
-				squares: squaresWithAttacks,
+				squares: updatedSquares,
 				whiteKingIsInCheck,
 				blackKingIsInCheck,
 			});
