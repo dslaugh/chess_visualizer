@@ -5,7 +5,7 @@ export default class Square extends React.Component {
 		const square = this.props.square;
 
 		let classes = `board-square ${square.squareColor}`;
-		if (this.props.selected) {
+		if (square.selected) {
 			classes += ' sel';
 		}
 		if (square.isLegalMove) {
@@ -28,7 +28,7 @@ export default class Square extends React.Component {
 		}
 
 		return (
-			<div className={classes} onClick={ () => this.props.onClick() } data-idx={ this.props.idx }>
+			<div className={classes} onClick={ () => this.props.onClick() } data-idx={ square.idx }>
 				{/*{ this.props.squareName } -*/}
 				{/*{ this.props.idx }*/}
 				{/*{ JSON.stringify(this.props.coords) } -*/}
