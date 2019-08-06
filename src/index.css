@@ -1,27 +1,46 @@
+.game {
+	width: 1100px;
+	margin: 0 auto;
+	display: flex;
+}
+
+.side-panel {
+	width: 300px;
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: column;
+	justify-content: space-between;
+	border-top: 2px solid #000;
+	border-right: 2px solid #000;
+	border-bottom: 2px solid #000;
+}
+
+.game-board {
+	width: 800px;
+	border-top: 1px solid #000;
+	border-left: 1px solid #000;
+	border-bottom: 1px solid #000;
+	border-right: 1px solid #000;
+}
+
+.board-row {
+	display: flex;
+}
+
 .board-square {
+	box-sizing: border-box;
 	width: 100px;
 	height: 100px;
 	border: 1px solid #000;
-	float: left;
 	cursor: pointer;
 }
 
-.board-row:after {
-	clear: both;
-	content: "";
-	display: table;
-}
-
 .light-square {
-	/*background-color: #edeed1;*/
 	background-color: #e5e6b7;
-
 }
 
 .dark-square {
-	/*background-color: #779952;*/
 	background-color: #a0862a;
-
 }
 
 .square-value {
@@ -29,9 +48,10 @@
 	text-align: center;
 	position: relative;
 	z-index: 1;
+	text-shadow: 1px 1px 0 #999999;
 }
 
-.sel {
+.selected-square {
 	background-color: rgba(0, 180, 0, 1);
 }
 
@@ -58,6 +78,19 @@
 				inset -10px -10px 5px orange;
 }
 
+.captures {
+	display: flex;
+	flex-wrap: wrap;
+	box-sizing: border-box;
+	font-size: 37px;
+}
+
+.player-turn {
+	text-align: center;
+	text-transform: capitalize;
+	margin-bottom: 20px;
+}
+
 .promotion-popup {
 	position: absolute;
 	z-index: 5;
@@ -67,7 +100,19 @@
 }
 
 .promotion-piece {
-	float: left;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.history-container {
+	display: flex;
+	width: 100%;
+	box-sizing: border-box;
+	justify-content: center;
+}
+
+.history-button {
+	font-size: 36px;
 	cursor: pointer;
 }
 

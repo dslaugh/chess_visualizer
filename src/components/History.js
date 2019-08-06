@@ -5,10 +5,10 @@ export default class History extends React.Component {
 	render() {
 		return (
 			<div className='history-container'>
-				<button type="button" onClick={() => this.props.onClick('start')}>Beginning</button>
-				<button type="button" onClick={() => this.props.onClick('back')}>Back</button>
-				<button type="button" onClick={() => this.props.onClick('forward')}>Forward</button>
-				<button type="button" onClick={() => this.props.onClick('end')}>End</button>
+				<div className='history-button' onClick={() => this.props.onClick('start')} title='Start'>{'\u23EE'}</div>
+				<div className='history-button' onClick={() => this.props.onClick('back')} title='Back'>{'\u23EA'}</div>
+				<div className='history-button' onClick={() => this.props.onClick('forward')} title='Forward'>{'\u23E9'}</div>
+				<div className='history-button' onClick={() => this.props.onClick('end')} title='Last Move'>{'\u23ED'}</div>
 			</div>
 		)
 	}

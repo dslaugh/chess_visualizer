@@ -258,17 +258,22 @@ export default class Game extends React.Component {
 						loc={ this.state.promotionPopupLoc }
 					/>
 				}
-				<PlayerTurn playerTurn={ current.playerTurn } />
 				<div className="game-board">
 					<Board
 						squares={ current.squares }
 						onClick={ (idx) => this.handleClick(idx) }
 					/>
 				</div>
-				<History
-					onClick={ (direction) => this.handleHistoryClick(direction) }
-				/>
-				<Captures white={ current.whiteCaptures } black={ current.blackCaptures } />
+				<aside className="side-panel">
+					<Captures className="captures black-captures" captures={ current.blackCaptures } />
+					<div>
+						<PlayerTurn playerTurn={ current.playerTurn } />
+						<History
+							onClick={ (direction) => this.handleHistoryClick(direction) }
+						/>
+					</div>
+					<Captures className="captures white-captures" captures={ current.whiteCaptures } />
+				</aside>
 			</div>
 		);
 	}
