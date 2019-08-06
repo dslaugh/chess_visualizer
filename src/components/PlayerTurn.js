@@ -2,6 +2,6 @@ import React from 'react';
 
 export default function PlayerTurn(props) {
 	return (
-		<div>Player Turn: { props.playerTurn }</div>
+		<div className="player-turn">Player Turn: { props.playerTurn }</div>
 	)
 }

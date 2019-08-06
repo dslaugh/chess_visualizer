@@ -2,17 +2,10 @@ import React from 'react';
 
 export default class Captures extends React.Component {
 	render() {
-		const whiteCaptures = this.props.white.sort().join('');
-		const blackCaptures = this.props.black.sort().join('');
+		const captures = this.props.captures.sort().map((piece, key) => <div key={key}>{piece}</div>);
 		return (
 			<div className="captures">
-				<div>
-					<div>{ whiteCaptures }</div>
-				</div>
-
-				<div>
-					<div>{ blackCaptures }</div>
-				</div>
+				{ captures }
 			</div>
 		);
 	}
