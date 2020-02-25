@@ -245,6 +245,14 @@ export default class Game extends React.Component {
 		this.setState({	moveNum });
 	}
 
+	toggleVisualization(player) {
+		if (player === 'white') {
+			this.setState({ showWhiteVisualizations: !this.state.showWhiteVisualizations })
+		} else if (player === 'black') {
+			this.setState({ showBlackVisualizations: !this.state.showBlackVisualizations })
+		}
+	}
+
 	render() {
 		const history = this.state.history;
 		const current = history[this.state.moveNum];
@@ -262,6 +270,8 @@ export default class Game extends React.Component {
 					<Board
 						squares={ current.squares }
 						onClick={ (idx) => this.handleClick(idx) }
+						showWhiteVisualizations={ this.state.showWhiteVisualizations }
+						showBlackVisualizations={ this.state.showBlackVisualizations }
 					/>
 				</div>
 				<aside className="side-panel">
@@ -271,6 +281,28 @@ export default class Game extends React.Component {
 						<History
 							onClick={ (direction) => this.handleHistoryClick(direction) }
 						/>
+						<div className="show-visualizations-container">
+							<div>
+								<input
+									type="checkbox"
+									name="show_white_visual"
+									id="show_white_visual"
+									checked={ this.state.showWhiteVisualizations }
+									onChange={ () => this.toggleVisualization('white') }
+								/>
+								<label htmlFor="show_white_visual" >Show White Visualizations</label>
+							</div>
+							<div>
+								<input
+									type="checkbox"
+									name="show_black_visual"
+									id="show_black_visual"
+									checked={ this.state.showBlackVisualizations }
+									onChange={ () => this.toggleVisualization('black') }
+								/>
+								<label htmlFor="show_black_visual">Show Black Visualizations</label>
+							</div>
+						</div>
 					</div>
 					<Captures className="captures white-captures" captures={ current.whiteCaptures } />
 				</aside>

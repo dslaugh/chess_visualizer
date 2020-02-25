@@ -7,6 +7,8 @@ export default class Board extends React.Component {
 		const square = this.props.squares[idx];
 		return <Square
 			square={ square }
+			showWhiteVisualizations={ this.props.showWhiteVisualizations }
+			showBlackVisualizations={ this.props.showBlackVisualizations }
 			onClick={ () => this.props.onClick(idx) }
 		/>
 	}

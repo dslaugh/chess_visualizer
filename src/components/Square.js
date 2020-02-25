@@ -4,6 +4,8 @@ export default class Square extends React.Component {
 	render() {
 		const square = this.props.square;
 
+		console.log(this.props);
+
 		let classes = `board-square ${square.squareColor}`;
 		if (square.selected) {
 			classes += ' selected-square';
@@ -19,13 +21,13 @@ export default class Square extends React.Component {
 			squareValueClasses += ' black-piece';
 		}
 
-		if (square.isAttackedByWhite && square.isAttackedByBlack) {
-			classes += ' both-attacking';
-		} else if (square.isAttackedByWhite) {
-			classes += ' white-attacking';
-		} else if (square.isAttackedByBlack) {
-			classes += ' black-attacking';
-		}
+			if (this.props.showWhiteVisualizations && this.props.showBlackVisualizations && square.isAttackedByWhite && square.isAttackedByBlack) {
+				classes += ' both-attacking';
+			} else if (this.props.showWhiteVisualizations && square.isAttackedByWhite) {
+				classes += ' white-attacking';
+			} else if (this.props.showBlackVisualizations && square.isAttackedByBlack) {
+				classes += ' black-attacking';
+			}
 
 		return (
 			<div className={classes} onClick={ () => this.props.onClick() } data-idx={ square.idx }>

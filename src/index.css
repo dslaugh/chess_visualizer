@@ -129,3 +129,7 @@ body {
 	top: 30px;
 	left: 24px;
 }
+.show-visualizations-container {
+	text-align: center;
+	margin: 20px 0 0 0;
+}

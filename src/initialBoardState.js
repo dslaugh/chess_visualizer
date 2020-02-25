@@ -19,6 +19,8 @@ export default {
 	promotedPlayerTurn: null,
 	promotionPopupLoc: null,
 	legalMoves: null,
+	showWhiteVisualizations: true,
+	showBlackVisualizations: true,
 	history: [
 		{
 			playerTurn: 'white',
