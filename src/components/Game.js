@@ -5,6 +5,7 @@ import PlayerTurn from './PlayerTurn';
 import Captures from './Captures';
 import PromotionPopup from './PromotionPopup';
 import History from './History';
+import VisualizationToggle from './VisualizationToggle';
 import initialBoardState from '../initialBoardState';
 import {
 	coordsToIdx,
@@ -275,36 +276,19 @@ export default class Game extends React.Component {
 					/>
 				</div>
 				<aside className="side-panel">
-					<Captures className="captures black-captures" captures={ current.blackCaptures } />
+					<Captures className="captures black-captures" captures={ current.whiteCaptures } />
 					<div>
 						<PlayerTurn playerTurn={ current.playerTurn } />
 						<History
 							onClick={ (direction) => this.handleHistoryClick(direction) }
 						/>
-						<div className="show-visualizations-container">
-							<div>
-								<input
-									type="checkbox"
-									name="show_white_visual"
-									id="show_white_visual"
-									checked={ this.state.showWhiteVisualizations }
-									onChange={ () => this.toggleVisualization('white') }
-								/>
-								<label htmlFor="show_white_visual" >Show White Visualizations</label>
-							</div>
-							<div>
-								<input
-									type="checkbox"
-									name="show_black_visual"
-									id="show_black_visual"
-									checked={ this.state.showBlackVisualizations }
-									onChange={ () => this.toggleVisualization('black') }
-								/>
-								<label htmlFor="show_black_visual">Show Black Visualizations</label>
-							</div>
-						</div>
+						<VisualizationToggle
+							onChange={ (player) => this.toggleVisualization(player) }
+							showWhiteVisualizations={ this.state.showWhiteVisualizations }
+							showBlackVisualizations={ this.state.showBlackVisualizations }
+						/>
 					</div>
-					<Captures className="captures white-captures" captures={ current.whiteCaptures } />
+					<Captures className="captures white-captures" captures={ current.blackCaptures } />
 				</aside>
 			</div>
 		);

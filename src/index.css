@@ -89,6 +89,7 @@ body {
 	text-align: center;
 	text-transform: capitalize;
 	margin-bottom: 20px;
+	font-size: 20px;
 }
 
 .promotion-popup {
@@ -132,4 +133,8 @@ body {
 .show-visualizations-container {
 	text-align: center;
 	margin: 20px 0 0 0;
+}
+.visualizations-header {
+	margin: 0 0 10px 0;
+	font-size: 20px;
 }

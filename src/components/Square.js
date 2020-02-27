@@ -4,8 +4,6 @@ export default class Square extends React.Component {
 	render() {
 		const square = this.props.square;
 
-		console.log(this.props);
-
 		let classes = `board-square ${square.squareColor}`;
 		if (square.selected) {
 			classes += ' selected-square';
