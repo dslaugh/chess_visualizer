@@ -276,6 +276,7 @@ export default class Game extends React.Component {
 					/>
 				</div>
 				<aside className="side-panel">
+					<img src="//pizza-luvrs-dslaugh.s3-us-west-2.amazonaws.com/toppings/cheddar.png" />
 					<Captures className="captures black-captures" captures={ current.whiteCaptures } />
 					<div>
 						<PlayerTurn playerTurn={ current.playerTurn } />
