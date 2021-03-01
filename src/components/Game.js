@@ -169,7 +169,7 @@ export default class Game extends React.Component {
 			return this.selectSquare(idx);
 		}
 
-		if (this.state.selectedSquareIdx === idx) {
+		if (this.state.selectedSquareIdx === idx || this.clickedOwnPiece(current, idx)) {
 			return this.deselectAll();
 		}
 
@@ -253,6 +253,11 @@ export default class Game extends React.Component {
 			this.setState({ showBlackVisualizations: !this.state.showBlackVisualizations })
 		}
 	}
+
+  clickedOwnPiece(currentState, idx) {
+    const clickedSquare = currentState.squares[idx];
+    return clickedSquare.occupant && (clickedSquare.occupant.player === currentState.playerTurn)
+  }
 
 	render() {
 		const history = this.state.history;
