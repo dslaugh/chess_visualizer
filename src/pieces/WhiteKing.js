@@ -61,7 +61,7 @@ export default function () {
 				});
 			}
 
-			const oooSquaresNotAttacked = [squares[57], squares[58], squares[59], squares[60]].every(square => !squareIsAttacked(square.coords, squaresAttackedByBlack));
+			const oooSquaresNotAttacked = [squares[59], squares[60]].every(square => !squareIsAttacked(square.coords, squaresAttackedByBlack));
 			const oooSquaresEmpty = [squares[57], squares[58], squares[59]].every(squareIsEmpty);
 			if (oooSquaresNotAttacked && oooSquaresEmpty && squares[56].occupant && squares[56].occupant.hasMoved === false ) {
 				legalMoves.push({

@@ -60,7 +60,7 @@ export default function () {
 				});	
 			}
 
-			const oooSquaresNotAttacked = [squares[1], squares[2], squares[3], squares[4]].every(square => !squareIsAttacked(square.coords, squaresAttackedByWhite));
+			const oooSquaresNotAttacked = [squares[3], squares[4]].every(square => !squareIsAttacked(square.coords, squaresAttackedByWhite));
 			const oooSquaresEmpty = [squares[1], squares[2], squares[3]].every(squareIsEmpty);
 			if (oooSquaresNotAttacked && oooSquaresEmpty && squares[0].occupant && squares[0].occupant.hasMoved === false ) {
 				legalMoves.push({
