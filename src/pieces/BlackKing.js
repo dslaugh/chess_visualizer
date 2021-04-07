@@ -8,7 +8,7 @@ import {
 	squareIsAttacked, squareIsEmpty,
 } from '../helpers';
 
-export default function () {
+function BlackKing() {
 	const moves = [
 		{ x: -1, y: -1 },
 		{ x: -1, y: 0 },
@@ -125,3 +125,5 @@ export default function () {
 		onPieceMove,
 	};
 }
+
+export default BlackKing;

@@ -1,7 +1,7 @@
 import {coordsToIdx, isInBounds, kingIsInCheck, updateBoard} from '../helpers';
 import { whiteQueen } from '../pieces_markup';
 
-export default function () {
+function WhiteQueen() {
 	const moveDirections = [
 		{ x: -1, y: -1 },
 		{ x: -1, y: 0 },
@@ -112,3 +112,5 @@ export default function () {
 		calculateAttackedSquares,
 	};
 }
+
+export default WhiteQueen;

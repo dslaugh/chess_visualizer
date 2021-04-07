@@ -11,7 +11,7 @@ import BlackBishop from './pieces/BlackBishop';
 import BlackKnight from './pieces/BlackKnight';
 import BlackRook from './pieces/BlackRook';
 
-export default {
+const initialBoardState = {
 	moveNum: 0,
 	selectedSquareIdx: null,
 	showPromotionPopup: false,
@@ -105,3 +105,5 @@ export default {
 		},
 	],
 };
+
+export default initialBoardState;

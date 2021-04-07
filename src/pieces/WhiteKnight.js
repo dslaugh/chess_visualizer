@@ -1,7 +1,7 @@
 import {coordsToIdx, isInBounds, kingIsInCheck, updateBoard} from '../helpers';
 import { whiteKnight } from '../pieces_markup';
 
-export default function () {
+function WhiteKnight() {
 	const moves = [
 		{ x: 2, y: 1 },
 		{ x: 2, y: -1 },
@@ -75,3 +75,5 @@ export default function () {
 		calculateAttackedSquares,
 	};
 }
+
+export default WhiteKnight;

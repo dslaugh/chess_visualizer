@@ -1,7 +1,7 @@
 import {coordsToIdx, isInBounds, kingIsInCheck, updateBoard} from '../helpers';
 import { blackBishop } from '../pieces_markup';
 
-export default function () {
+function BlackBishop() {
 	const moveDirections = [
 		{ x: 1, y: 1 },
 		{ x: 1, y: -1 },
@@ -108,3 +108,5 @@ export default function () {
 		calculateAttackedSquares,
 	};
 }
+
+export default BlackBishop;

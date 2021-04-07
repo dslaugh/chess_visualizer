@@ -1,7 +1,7 @@
 import {coordsToIdx, isInBounds, kingIsInCheck, updateBoard} from '../helpers';
 import { blackRook } from '../pieces_markup';
 
-export default function () {
+function BlackRook() {
 	const moveDirections = [
 		{ x: 1, y: 0 },
 		{ x: 0, y: 1 },
@@ -109,3 +109,5 @@ export default function () {
 		onPieceMove,
 	};
 }
+
+export default BlackRook;

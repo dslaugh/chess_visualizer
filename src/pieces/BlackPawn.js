@@ -1,7 +1,7 @@
 import {coordsToIdx, isInBounds, kingIsInCheck, squareIsEmpty, updateBoard} from '../helpers';
 import { blackPawn } from '../pieces_markup';
 
-export default function () {
+function BlackPawn() {
 	const moves = [
 		{ x: 0, y: 1 },
 		{ x: 0, y: 2 },
@@ -159,3 +159,5 @@ export default function () {
 		onPieceMove,
 	};
 }
+
+export default BlackPawn;
